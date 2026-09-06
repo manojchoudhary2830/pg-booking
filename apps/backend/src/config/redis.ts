@@ -14,11 +14,14 @@ const REDIS_RETRY_STRATEGY = (times: number): number | null => {
 
 function buildRedisOptions(db: number): RedisOptions {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const url = new (global as any).URL(env.REDIS_URL) as { hostname: string; port: string; password: string };
+  const url = new (global as any).URL(env.REDIS_URL) as { hostname: string; port: string; password?: string; username?: string; protocol?: string };
+  const isTls = url.protocol === 'rediss:' || env.REDIS_URL.startsWith('rediss://');
   return {
     host: url.hostname,
     port: parseInt(url.port || '6379', 10),
+    username: url.username || undefined,
     password: env.REDIS_PASSWORD || url.password || undefined,
+    tls: isTls ? { rejectUnauthorized: false } : undefined,
     db,
     keyPrefix: env.REDIS_KEY_PREFIX,
     retryStrategy: REDIS_RETRY_STRATEGY,

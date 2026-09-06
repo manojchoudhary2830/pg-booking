@@ -5,13 +5,14 @@ import { logger } from '@shared/utils/logger';
 let pool: Pool | null = null;
 
 export function createDatabasePool(): Pool {
+  const isRemote = env.DB_SSL || env.DATABASE_URL.includes('supabase.co') || env.DATABASE_URL.includes('supabase.com');
   const instance = new Pool({
     connectionString: env.DATABASE_URL,
     min: env.DB_POOL_MIN,
     max: env.DB_POOL_MAX,
     idleTimeoutMillis: env.DB_IDLE_TIMEOUT_MS,
     connectionTimeoutMillis: env.DB_CONNECTION_TIMEOUT_MS,
-    ssl: env.DB_SSL ? { rejectUnauthorized: true } : false,
+    ssl: isRemote ? { rejectUnauthorized: false } : false,
     application_name: `${env.APP_NAME}-${env.NODE_ENV}`,
   });
 

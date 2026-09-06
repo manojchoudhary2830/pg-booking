@@ -22,10 +22,12 @@ async function bootstrap(): Promise<void> {
   if (env.NODE_ENV !== 'test') {
     const fs = await import('fs');
     const missingKeys: string[] = [];
-    if (!fs.existsSync(env.JWT_PRIVATE_KEY_PATH)) missingKeys.push(`private key: ${env.JWT_PRIVATE_KEY_PATH}`);
-    if (!fs.existsSync(env.JWT_PUBLIC_KEY_PATH))  missingKeys.push(`public key:  ${env.JWT_PUBLIC_KEY_PATH}`);
+    const hasPrivateKey = Boolean(process.env.JWT_PRIVATE_KEY) || (Boolean(env.JWT_PRIVATE_KEY_PATH) && fs.existsSync(env.JWT_PRIVATE_KEY_PATH));
+    const hasPublicKey  = Boolean(process.env.JWT_PUBLIC_KEY)  || (Boolean(env.JWT_PUBLIC_KEY_PATH)  && fs.existsSync(env.JWT_PUBLIC_KEY_PATH));
+    if (!hasPrivateKey) missingKeys.push(`private key: Set JWT_PRIVATE_KEY env var or place file at ${env.JWT_PRIVATE_KEY_PATH}`);
+    if (!hasPublicKey)  missingKeys.push(`public key: Set JWT_PUBLIC_KEY env var or place file at ${env.JWT_PUBLIC_KEY_PATH}`);
     if (missingKeys.length > 0) {
-      logger.error('❌ JWT key files not found. Run: npm run keys:generate');
+      logger.error('❌ JWT keys not found. Run: npm run keys:generate or set JWT_PRIVATE_KEY / JWT_PUBLIC_KEY');
       missingKeys.forEach(k => logger.error(`   Missing: ${k}`));
       process.exit(1);
     }

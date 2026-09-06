@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { getQueueClient } from '@config/redis';
 import { logger } from '@shared/utils/logger';
-import { QUEUE_NAMES, JOB_NAMES } from './bullmq.client';
+import { QUEUE_NAMES, JOB_NAMES } from '../bullmq.client';
 import {
   SendSmsJobData,
   SendEmailJobData,
@@ -82,7 +82,10 @@ function createPushWorker(): Worker<SendPushJobData> {
     async (job: Job<SendPushJobData>) => {
       const { userId, title, body, data } = job.data;
       const { sendPushToUser } = await import('@infrastructure/push/firebase.client');
-      await sendPushToUser(userId, { title, body, data });
+      const formattedData = data
+        ? Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)]))
+        : undefined;
+      await sendPushToUser(userId, { title, body, data: formattedData });
       logger.info('Push job completed', { jobId: job.id, userId });
     },
     buildWorkerOptions(),

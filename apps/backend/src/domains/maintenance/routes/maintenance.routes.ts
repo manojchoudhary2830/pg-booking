@@ -37,9 +37,12 @@ const TicketIdParam = z.object({ id: z.string().uuid() });
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: env.UPLOAD_MAX_FILE_SIZE_MB * 1024 * 1024, files: 3 },
-  fileFilter: (_req: any, file: { mimetype: string }, cb: (error: Error | null, acceptFile: boolean) => void) => {
-    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) cb(null, true);
-    else cb(new BadRequestError('Only image files allowed'), false as any);
+  fileFilter: (_req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new BadRequestError('Only image files allowed'));
+    }
   },
 });
 

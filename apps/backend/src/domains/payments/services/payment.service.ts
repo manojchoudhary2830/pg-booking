@@ -64,9 +64,9 @@ export async function createPaymentOrder(params: {
   }
 
   // Create Razorpay order
-  let order: Awaited<ReturnType<typeof getRazorpay>['orders']['create']>;
+  let order: { id: string; [key: string]: unknown };
   try {
-    order = await getRazorpay().orders.create({
+    order = (await getRazorpay().orders.create({
       amount: Math.round(params.amount * 100), // paise
       currency: params.currency,
       receipt: idempotencyKey.slice(0, 40),
@@ -75,7 +75,7 @@ export async function createPaymentOrder(params: {
         purpose: params.purpose,
         payer_id: params.payerId,
       },
-    });
+    })) as any;
   } catch (err) {
     throw new PaymentGatewayError(`Failed to create Razorpay order: ${(err as Error).message}`);
   }

@@ -24,11 +24,11 @@ import { env } from '@config/environment';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: env.UPLOAD_MAX_FILE_SIZE_MB * 1024 * 1024 },
-  fileFilter: (_req: any, file: { mimetype: string }, cb: (error: Error | null, accept: boolean) => void) => {
+  fileFilter: (_req, file, cb) => {
     if (env.UPLOAD_ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new BadRequestError(`File type ${file.mimetype} is not allowed`), false as any);
+      cb(new BadRequestError(`File type ${file.mimetype} is not allowed`));
     }
   },
 });

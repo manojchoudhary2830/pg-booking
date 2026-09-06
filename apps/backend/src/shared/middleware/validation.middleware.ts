@@ -21,7 +21,7 @@ export function validate(schema: ZodSchema, part: RequestPart = 'body') {
       return;
     }
     // Replace with parsed (coerced/transformed) data
-    (req as Record<string, unknown>)[part] = result.data;
+    (req as any)[part] = result.data;
     next();
   };
 }
@@ -51,7 +51,7 @@ export function validateRequest(schemas: Partial<Record<RequestPart, ZodSchema>>
           field: `${part}.${e.field}`,
         })));
       } else {
-        (req as Record<string, unknown>)[part] = result.data;
+        (req as any)[part] = result.data;
       }
     }
 
