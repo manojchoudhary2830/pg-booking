@@ -23,6 +23,7 @@
     "test:load": "k6 run tests/load/booking.load.ts",
     "test:coverage": "jest --testPathPattern='tests/unit' --coverage --runInBand",
     "migrate:up": "DATABASE_URL=$DATABASE_URL ../../database/scripts/run_migrations.sh",
+    "migrate:supabase": "ts-node -r tsconfig-paths/register src/infrastructure/database/migrate.ts",
     "migrate:status": "psql $DATABASE_URL -c \"SELECT version, applied_at FROM schema_migrations ORDER BY applied_at;\"",
     "migrate:create": "echo \"Create a new file: database/migrations/$(date +%Y%m%d_%H%M%S)_description.sql\"",
     "seed": "ts-node -r tsconfig-paths/register src/infrastructure/database/seeds/index.ts",
