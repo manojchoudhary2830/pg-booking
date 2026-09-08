@@ -64,7 +64,7 @@ export async function createPaymentOrder(params: {
   }
 
   // Create Razorpay order
-  let order: Awaited<ReturnType<typeof getRazorpay>['orders']['create']>;
+  let order: any;
   try {
     order = await getRazorpay().orders.create({
       amount: Math.round(params.amount * 100), // paise
@@ -229,9 +229,11 @@ export async function processWebhook(
         [p.id, JSON.stringify(event.payload.payment?.entity), p.order_id],
       );
       if (updated?.booking_context_id) {
-        await confirmBooking(updated.booking_context_id, updated.id).catch((e: Error) =>
-          logger.error('Webhook: confirmBooking failed', { error: e.message }),
-        );
+        try {
+          await confirmBooking(updated.booking_context_id, updated.id);
+        } catch (e: any) {
+          logger.error('Webhook: confirmBooking failed', { error: e?.message });
+        }
       }
       break;
     }

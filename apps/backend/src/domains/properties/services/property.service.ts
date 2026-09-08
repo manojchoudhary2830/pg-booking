@@ -30,7 +30,7 @@ export async function getPropertyById(id: string, requestingUserId?: string) {
 
   // Sign cover photo URL
   const enrichedPhotos = await Promise.all(
-    photos.map(async (p: { s3_key: string; thumbnail_key: string | null; medium_key: string | null; [key: string]: unknown }) => ({
+    photos.map(async (p: any) => ({
       ...p,
       url: await getSignedDownloadUrl('properties', p.s3_key),
       thumbnail_url: p.thumbnail_key

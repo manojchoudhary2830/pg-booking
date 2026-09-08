@@ -2,6 +2,36 @@ import { Pool } from 'pg';
 import Redis from 'ioredis';
 
 // ─────────────────────────────────────────────
+// Test Environment Defaults
+// ─────────────────────────────────────────────
+process.env.NODE_ENV = 'test';
+process.env.CORS_ORIGINS = 'http://localhost:3000';
+process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+process.env.JWT_PRIVATE_KEY_PATH = './keys/private.pem';
+process.env.JWT_PUBLIC_KEY_PATH = './keys/public.pem';
+process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+process.env.AWS_S3_BUCKET_KYC = 'test-kyc';
+process.env.AWS_S3_BUCKET_PROPERTIES = 'test-properties';
+process.env.AWS_S3_BUCKET_MAINTENANCE = 'test-maintenance';
+process.env.RAZORPAY_KEY_ID = 'rzp_test_12345';
+process.env.RAZORPAY_KEY_SECRET = 'test_razorpay_secret';
+process.env.RAZORPAY_WEBHOOK_SECRET = 'test_webhook_secret';
+process.env.TWILIO_ACCOUNT_SID = 'ACtest';
+process.env.TWILIO_AUTH_TOKEN = 'test_auth';
+process.env.TWILIO_PHONE_NUMBER = '+15005550006';
+process.env.FIREBASE_PROJECT_ID = 'test-project';
+process.env.FIREBASE_PRIVATE_KEY_ID = 'test-key-id';
+process.env.FIREBASE_PRIVATE_KEY = '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCVOGhPxH0IWjKw\n-----END PRIVATE KEY-----';
+process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
+process.env.FIREBASE_CLIENT_ID = '1234567890';
+process.env.SMTP_HOST = 'localhost';
+process.env.SMTP_USER = 'dummy';
+process.env.SMTP_PASSWORD = 'dummy';
+process.env.EMAIL_FROM = 'test@pgbooking.local';
+process.env.ENCRYPTION_KEY = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+
+// ─────────────────────────────────────────────
 // Mock infrastructure in unit tests
 // ─────────────────────────────────────────────
 
@@ -15,22 +45,30 @@ jest.mock('@config/database', () => ({
   getPool: jest.fn(),
 }));
 
+const mockCacheInstance = {
+  get: jest.fn(), set: jest.fn(), setex: jest.fn(),
+  del: jest.fn(), ttl: jest.fn(() => -1), pttl: jest.fn(() => -1),
+  exists: jest.fn(() => 0), ping: jest.fn(() => 'PONG'),
+  eval: jest.fn(), keys: jest.fn(() => []),
+  incrby: jest.fn(() => 1),
+};
+
+const mockLockInstance = {
+  get: jest.fn(), set: jest.fn(), del: jest.fn(),
+  pttl: jest.fn(() => -1), eval: jest.fn(),
+};
+
+const mockSessionInstance = {
+  get: jest.fn(() => null), setex: jest.fn(), del: jest.fn(),
+};
+
+const mockQueueInstance = { connect: jest.fn(), ping: jest.fn() };
+
 jest.mock('@config/redis', () => ({
-  getCacheClient: jest.fn(() => ({
-    get: jest.fn(), set: jest.fn(), setex: jest.fn(),
-    del: jest.fn(), ttl: jest.fn(() => -1), pttl: jest.fn(() => -1),
-    exists: jest.fn(() => 0), ping: jest.fn(() => 'PONG'),
-    eval: jest.fn(), keys: jest.fn(() => []),
-    incrby: jest.fn(() => 1),
-  })),
-  getLockClient: jest.fn(() => ({
-    get: jest.fn(), set: jest.fn(), del: jest.fn(),
-    pttl: jest.fn(() => -1), eval: jest.fn(),
-  })),
-  getSessionClient: jest.fn(() => ({
-    get: jest.fn(() => null), setex: jest.fn(), del: jest.fn(),
-  })),
-  getQueueClient: jest.fn(() => ({ connect: jest.fn(), ping: jest.fn() })),
+  getCacheClient: jest.fn(() => mockCacheInstance),
+  getLockClient: jest.fn(() => mockLockInstance),
+  getSessionClient: jest.fn(() => mockSessionInstance),
+  getQueueClient: jest.fn(() => mockQueueInstance),
 }));
 
 jest.mock('@infrastructure/queue/bullmq.client', () => ({

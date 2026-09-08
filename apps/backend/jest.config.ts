@@ -23,7 +23,7 @@ const config: Config = {
     '!src/**/*.d.ts',
     '!src/**/index.ts',
   ],
-  coverageThresholds: {
+  coverageThreshold: {
     global: { branches: 70, functions: 75, lines: 75, statements: 75 },
   },
   testTimeout: 30000,

@@ -1,4 +1,4 @@
-import { makeBed, makeBooking, makeUser, testIds } from '../fixtures/setup';
+import { makeBed, makeBooking, makeUser, testIds } from '../../fixtures/setup';
 
 // ─── Mock modules first ───────────────────────
 jest.mock('@config/database');

@@ -1,4 +1,4 @@
-import { makePayment, makeBooking, testIds } from '../fixtures/setup';
+import { makePayment, makeBooking, testIds } from '../../fixtures/setup';
 
 jest.mock('@config/database');
 jest.mock('@config/redis');

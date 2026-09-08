@@ -1,4 +1,4 @@
-import { makeUser, testIds } from '../fixtures/setup';
+import { makeUser, testIds } from '../../fixtures/setup';
 
 jest.mock('@config/database');
 jest.mock('@config/redis');

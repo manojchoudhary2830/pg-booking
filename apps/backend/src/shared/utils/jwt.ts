@@ -30,10 +30,6 @@ function getPrivateKey(): string {
     }
   }
   return privateKey;
-} private key from ${env.JWT_PRIVATE_KEY_PATH}: ${(error as Error).message}`);
-    }
-  }
-  return privateKey;
 }
 
 function getPublicKey(): string {
