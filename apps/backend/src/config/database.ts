@@ -11,7 +11,7 @@ export function createDatabasePool(): Pool {
     max: env.DB_POOL_MAX,
     idleTimeoutMillis: env.DB_IDLE_TIMEOUT_MS,
     connectionTimeoutMillis: env.DB_CONNECTION_TIMEOUT_MS,
-    ssl: env.DB_SSL ? { rejectUnauthorized: true } : false,
+    ssl: env.DB_SSL ? { rejectUnauthorized: false } : false,
     application_name: `${env.APP_NAME}-${env.NODE_ENV}`,
   });
 

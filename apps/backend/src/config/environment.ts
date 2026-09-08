@@ -5,6 +5,10 @@ import * as path from 'path';
 dotenv.config({
   path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV ?? 'development'}`),
 });
+dotenv.config({
+  path: path.resolve(process.cwd(), '.env'),
+});
+dotenv.config();
 
 const EnvironmentSchema = z.object({
   // Application

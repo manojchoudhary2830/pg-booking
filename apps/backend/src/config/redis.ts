@@ -12,120 +12,80 @@ const REDIS_RETRY_STRATEGY = (times: number): number | null => {
   return delay;
 };
 
-function buildRedisOptions(db: number): RedisOptions {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const url = new (global as any).URL(env.REDIS_URL) as { hostname: string; port: string; password: string };
+function buildRedisOptions(withPrefix = true): RedisOptions {
+  const isTls = env.REDIS_URL.startsWith('rediss://');
   return {
-    host: url.hostname,
-    port: parseInt(url.port || '6379', 10),
-    password: env.REDIS_PASSWORD || url.password || undefined,
-    db,
-    keyPrefix: env.REDIS_KEY_PREFIX,
+    keyPrefix: withPrefix ? env.REDIS_KEY_PREFIX : undefined,
     retryStrategy: REDIS_RETRY_STRATEGY,
-    maxRetriesPerRequest: 3,
+    maxRetriesPerRequest: null,
     lazyConnect: true,
-    enableReadyCheck: true,
-    connectTimeout: 10000,
-    commandTimeout: 5000,
-    family: 4,
-    keepAlive: 30000,
+    enableReadyCheck: false,
+    connectTimeout: 20000,
+    tls: isTls ? { rejectUnauthorized: false } : undefined,
   };
 }
 
 // ─────────────────────────────────────────────
-// Redis Instances (separate logical databases)
+// Redis Instances
 // ─────────────────────────────────────────────
 
-let cacheClient: Redis | null = null;
-let sessionClient: Redis | null = null;
-let lockClient: Redis | null = null;
+let sharedClient: Redis | null = null;
 let queueClient: Redis | null = null;
 
-function createRedisClient(db: number, name: string): Redis {
-  const client = new Redis(buildRedisOptions(db));
-
-  client.on('connect', () => {
-    logger.info(`Redis [${name}] connected`, { db });
-  });
-
-  client.on('ready', () => {
-    logger.info(`Redis [${name}] ready`);
-  });
-
-  client.on('error', (err: Error) => {
-    logger.error(`Redis [${name}] error`, { error: err.message, db });
-  });
-
-  client.on('close', () => {
-    logger.warn(`Redis [${name}] connection closed`);
-  });
-
-  client.on('reconnecting', (delay: number) => {
-    logger.warn(`Redis [${name}] reconnecting`, { delay });
-  });
-
-  return client;
+function getOrCreateClient(): Redis {
+  if (!sharedClient) {
+    sharedClient = new Redis(env.REDIS_URL, buildRedisOptions(true));
+    sharedClient.on('connect', () => logger.info(`Redis connected`));
+    sharedClient.on('ready', () => logger.info(`Redis ready`));
+    sharedClient.on('error', (err: Error) => logger.error(`Redis error: ${err.message}`));
+  }
+  return sharedClient;
 }
 
 export function getCacheClient(): Redis {
-  if (!cacheClient) {
-    cacheClient = createRedisClient(env.REDIS_CACHE_DB, 'cache');
-  }
-  return cacheClient;
+  return getOrCreateClient();
 }
 
 export function getSessionClient(): Redis {
-  if (!sessionClient) {
-    sessionClient = createRedisClient(env.REDIS_SESSION_DB, 'session');
-  }
-  return sessionClient;
+  return getOrCreateClient();
 }
 
 export function getLockClient(): Redis {
-  if (!lockClient) {
-    lockClient = createRedisClient(env.REDIS_LOCK_DB, 'lock');
-  }
-  return lockClient;
+  return getOrCreateClient();
 }
 
 export function getQueueClient(): Redis {
   if (!queueClient) {
-    queueClient = createRedisClient(env.REDIS_QUEUE_DB, 'queue');
+    queueClient = new Redis(env.REDIS_URL, buildRedisOptions(false));
+    queueClient.on('error', (err: Error) => logger.error(`BullMQ Redis error: ${err.message}`));
   }
   return queueClient;
 }
 
 // ─────────────────────────────────────────────
-// Connect All Redis Instances
+// Connect Redis
 // ─────────────────────────────────────────────
 
 export async function connectRedis(): Promise<void> {
-  const clients = [
-    { client: getCacheClient(), name: 'cache' },
-    { client: getSessionClient(), name: 'session' },
-    { client: getLockClient(), name: 'lock' },
-    { client: getQueueClient(), name: 'queue' },
-  ];
-
-  await Promise.all(
-    clients.map(async ({ client, name }) => {
-      try {
-        await client.connect();
-        await client.ping();
-        logger.info(`✅ Redis [${name}] connected`);
-      } catch (error) {
-        const err = error as Error;
-        throw new Error(`Failed to connect Redis [${name}]: ${err.message}`);
-      }
-    }),
-  );
+  const client = getOrCreateClient();
+  try {
+    if (client.status === 'wait') {
+      await client.connect();
+    }
+    await client.ping();
+    logger.info(`✅ Redis connected successfully`);
+  } catch (error) {
+    const err = error as Error;
+    logger.warn(`Redis initial ping warning: ${err.message}`);
+  }
 }
 
 export async function disconnectRedis(): Promise<void> {
-  const clients = [cacheClient, sessionClient, lockClient, queueClient].filter(Boolean);
-  await Promise.all(clients.map((c) => c!.quit()));
-  cacheClient = sessionClient = lockClient = queueClient = null;
-  logger.info('All Redis connections closed');
+  if (sharedClient) {
+    await sharedClient.quit();
+    sharedClient = null;
+    logger.info('Redis connection closed');
+  }
 }
 
 // ─────────────────────────────────────────────
