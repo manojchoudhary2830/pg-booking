@@ -82,7 +82,10 @@ function createPushWorker(): Worker<SendPushJobData> {
     async (job: Job<SendPushJobData>) => {
       const { userId, title, body, data } = job.data;
       const { sendPushToUser } = await import('@infrastructure/push/firebase.client');
-      await sendPushToUser(userId, { title, body, data: data as Record<string, string> });
+      const formattedData = data
+        ? Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)]))
+        : undefined;
+      await sendPushToUser(userId, { title, body, data: formattedData });
       logger.info('Push job completed', { jobId: job.id, userId });
     },
     buildWorkerOptions(),

@@ -24,6 +24,7 @@
     "test:coverage": "jest --testPathPattern='tests/unit' --coverage --runInBand",
     "migrate": "ts-node src/infrastructure/database/migrate.ts",
     "migrate:up": "ts-node src/infrastructure/database/migrate.ts",
+    "migrate:supabase": "ts-node src/infrastructure/database/migrate.ts",
     "migrate:status": "psql $DATABASE_URL -c \"SELECT version, applied_at FROM schema_migrations ORDER BY applied_at;\"",
     "migrate:create": "echo \"Create a new file: database/migrations/$(date +%Y%m%d_%H%M%S)_description.sql\"",
     "seed": "ts-node -r tsconfig-paths/register src/infrastructure/database/seeds/index.ts",
