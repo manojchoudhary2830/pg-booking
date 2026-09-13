@@ -17,6 +17,9 @@ function buildRateLimitHandler() {
 }
 
 function buildRedisStore(prefix: string) {
+  if (env.NODE_ENV === 'test') {
+    return undefined;
+  }
   return new RedisStore({
     sendCommand: ((...args: string[]) => (getCacheClient() as any).call(...args)) as any,
     prefix: `${env.REDIS_KEY_PREFIX}rl:${prefix}:`,

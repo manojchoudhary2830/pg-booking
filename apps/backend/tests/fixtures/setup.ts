@@ -5,6 +5,9 @@ import Redis from 'ioredis';
 // Test Environment Defaults
 // ─────────────────────────────────────────────
 process.env.NODE_ENV = 'test';
+if (process.env.SKIP_INTEGRATION === undefined && !process.env.TEST_WITH_LIVE_DB) {
+  process.env.SKIP_INTEGRATION = 'true';
+}
 process.env.CORS_ORIGINS = 'http://localhost:3000';
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 process.env.JWT_PRIVATE_KEY_PATH = './keys/private.pem';
@@ -43,6 +46,9 @@ jest.mock('@config/database', () => ({
     query: jest.fn(),
   })),
   getPool: jest.fn(),
+  connectDatabase: jest.fn(),
+  disconnectDatabase: jest.fn(),
+  checkDatabaseHealth: jest.fn().mockResolvedValue({ healthy: true, latencyMs: 1 }),
 }));
 
 const mockCacheInstance = {
@@ -51,6 +57,7 @@ const mockCacheInstance = {
   exists: jest.fn(() => 0), ping: jest.fn(() => 'PONG'),
   eval: jest.fn(), keys: jest.fn(() => []),
   incrby: jest.fn(() => 1),
+  call: jest.fn().mockResolvedValue('mock-sha'),
 };
 
 const mockLockInstance = {
@@ -69,6 +76,9 @@ jest.mock('@config/redis', () => ({
   getLockClient: jest.fn(() => mockLockInstance),
   getSessionClient: jest.fn(() => mockSessionInstance),
   getQueueClient: jest.fn(() => mockQueueInstance),
+  connectRedis: jest.fn(),
+  disconnectRedis: jest.fn(),
+  checkRedisHealth: jest.fn().mockResolvedValue({ healthy: true, latencyMs: 1 }),
 }));
 
 jest.mock('@infrastructure/queue/bullmq.client', () => ({
