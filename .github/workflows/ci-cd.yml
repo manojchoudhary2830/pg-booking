@@ -166,11 +166,7 @@ jobs:
       - name: Run database migrations
         env:
           DATABASE_URL: postgresql://pgbooking_test:test_password@localhost:5432/pgbooking_test
-        run: |
-          for f in ../../database/migrations/*.sql; do
-            echo "Running migration: $f"
-            PGPASSWORD=test_password psql -h localhost -U pgbooking_test -d pgbooking_test -f "$f"
-          done
+        run: npm run migrate
 
       - name: Run integration tests
         env:
