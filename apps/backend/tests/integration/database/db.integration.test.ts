@@ -6,6 +6,8 @@
 
 import { Pool } from 'pg';
 
+jest.unmock('@config/database');
+
 const INTEGRATION_SKIP = process.env.SKIP_INTEGRATION === 'true';
 const describeOrSkip = INTEGRATION_SKIP ? describe.skip : describe;
 
@@ -13,9 +15,8 @@ let pool: Pool;
 
 beforeAll(async () => {
   if (INTEGRATION_SKIP) return;
-  const { connectDatabase, getPool } = await import('../../../src/config/database');
-  await connectDatabase();
-  pool = getPool();
+  const { connectDatabase } = await import('../../../src/config/database');
+  pool = await connectDatabase();
 });
 
 afterAll(async () => {

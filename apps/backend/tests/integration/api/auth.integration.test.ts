@@ -6,6 +6,9 @@ import type { Application } from 'express';
 // Run with: docker-compose up -d postgres redis
 // then: npm run test:integration
 
+jest.unmock('@config/database');
+jest.unmock('@config/redis');
+
 const INTEGRATION_SKIP = process.env.SKIP_INTEGRATION === 'true';
 const describeOrSkip = INTEGRATION_SKIP ? describe.skip : describe;
 

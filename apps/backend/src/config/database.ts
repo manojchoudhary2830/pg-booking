@@ -45,7 +45,7 @@ export function getPool(): Pool {
   return pool;
 }
 
-export async function connectDatabase(): Promise<void> {
+export async function connectDatabase(): Promise<Pool> {
   const db = getPool();
   let attempts = 0;
   const maxAttempts = 10;
@@ -65,7 +65,7 @@ export async function connectDatabase(): Promise<void> {
         poolMin: env.DB_POOL_MIN,
         poolMax: env.DB_POOL_MAX,
       });
-      return;
+      return db;
     } catch (error) {
       attempts++;
       const err = error as Error;
@@ -82,6 +82,7 @@ export async function connectDatabase(): Promise<void> {
       await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
     }
   }
+  return db;
 }
 
 export async function disconnectDatabase(): Promise<void> {

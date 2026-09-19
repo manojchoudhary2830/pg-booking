@@ -12,6 +12,7 @@ import request from 'supertest';
 import { Application } from 'express';
 import { Pool, PoolClient } from 'pg';
 
+jest.unmock('@config/database');
 jest.unmock('@config/redis');
 
 const INTEGRATION_SKIP = process.env.SKIP_INTEGRATION === 'true';
@@ -85,9 +86,8 @@ describeOrSkip('Booking Race Condition Tests', () => {
     const { connectDatabase, getPool } = await import('../../../src/config/database');
     const { connectRedis } = await import('../../../src/config/redis');
 
-    await connectDatabase();
+    pool = await connectDatabase();
     await connectRedis();
-    pool = getPool();
     app = createApp();
 
     // Provision test tenants (upsert)
