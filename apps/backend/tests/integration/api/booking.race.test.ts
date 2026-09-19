@@ -7,6 +7,7 @@
  * Run: npm run test:integration (requires postgres + redis running)
  */
 
+import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
 import request from 'supertest';
 import { Application } from 'express';
 import { Pool, PoolClient } from 'pg';

@@ -42,11 +42,13 @@
     },
     "baseUrl": ".",
     "types": [
-      "node"
+      "node",
+      "jest"
     ]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",
