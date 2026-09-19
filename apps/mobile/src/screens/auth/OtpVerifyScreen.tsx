@@ -130,7 +130,7 @@ export default function OtpVerifyScreen() {
             theme={{
               containerStyle: styles.otpContainer,
               inputsContainerStyle: styles.otpInputsContainer,
-              pinCodeContainerStyle: [styles.otpBox, error ? styles.otpBoxError : null],
+              pinCodeContainerStyle: error ? { ...styles.otpBox, ...styles.otpBoxError } : styles.otpBox,
               pinCodeTextStyle: styles.otpText,
               focusedPinCodeContainerStyle: styles.otpBoxFocused,
             }}

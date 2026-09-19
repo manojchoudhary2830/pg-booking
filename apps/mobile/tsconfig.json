@@ -2,6 +2,9 @@
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "strict": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-native",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],

@@ -20,8 +20,6 @@ export type AuthStackParamList = {
   OtpVerify: { phoneNumber: string };
   ProfileComplete: { isNewUser: boolean };
 };
-  ProfileComplete: { isNewUser: boolean };
-};
 
 export type TenantTabParamList = {
   HomeTab: undefined;

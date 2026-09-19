@@ -11,6 +11,8 @@ import request from 'supertest';
 import { Application } from 'express';
 import { Pool, PoolClient } from 'pg';
 
+jest.unmock('@config/redis');
+
 const INTEGRATION_SKIP = process.env.SKIP_INTEGRATION === 'true';
 const describeOrSkip = INTEGRATION_SKIP ? describe.skip : describe;
 
