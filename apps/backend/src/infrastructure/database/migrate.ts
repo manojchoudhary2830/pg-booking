@@ -15,9 +15,10 @@ if (!databaseUrl || databaseUrl.includes('[YOUR-PASSWORD]')) {
 }
 
 async function runMigrations() {
-  const isRemote = databaseUrl.includes('supabase') || databaseUrl.includes('sslmode=') || databaseUrl.includes('ssl=true');
+  const url = databaseUrl as string;
+  const isRemote = url.includes('supabase') || url.includes('sslmode=') || url.includes('ssl=true');
   const client = new Client({
-    connectionString: databaseUrl,
+    connectionString: url,
     ssl: isRemote ? { rejectUnauthorized: false } : false,
   });
 
