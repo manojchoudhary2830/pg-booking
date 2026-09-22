@@ -28,27 +28,25 @@
     "emitDecoratorMetadata": true,
     "paths": {
       "@config/*": [
-        "src/config/*"
+        "./src/config/*"
       ],
       "@domains/*": [
-        "src/domains/*"
+        "./src/domains/*"
       ],
       "@shared/*": [
-        "src/shared/*"
+        "./src/shared/*"
       ],
       "@infrastructure/*": [
-        "src/infrastructure/*"
+        "./src/infrastructure/*"
       ]
     },
     "baseUrl": ".",
     "types": [
-      "node",
-      "jest"
+      "node"
     ]
   },
   "include": [
-    "src/**/*",
-    "tests/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

@@ -4,7 +4,7 @@
   "description": "NextGen PG & Room Booking Platform \u2014 Backend API",
   "private": true,
   "engines": {
-    "node": ">=20.11.0",
+    "node": "20.x",
     "npm": ">=10.0.0"
   },
   "main": "dist/server.js",
