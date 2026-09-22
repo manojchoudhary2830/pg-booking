@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "moduleResolution": "node",
     "lib": [
       "ES2022"
     ],
@@ -40,7 +39,6 @@
         "./src/infrastructure/*"
       ]
     },
-    "baseUrl": ".",
     "types": [
       "node"
     ]
